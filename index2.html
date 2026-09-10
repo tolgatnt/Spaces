@@ -31,7 +31,7 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
 .thought-position{font-size:12px;color:var(--muted);font-weight:700;text-align:center}
 @media(max-width:650px){.thought-nav-btn{min-width:100px}.thought-position{font-size:11px}}
 
-.toast{position:fixed;right:24px;bottom:24px;background:#292724;color:#fff;padding:12px 15px;border-radius:11px;display:none;z-index:20}
+.toast{position:fixed;right:24px;bottom:85px;background:#292724;color:#fff;padding:12px 15px;border-radius:11px;display:none;z-index:10000}
 @media(max-width:950px){.app{grid-template-columns:78px 1fr}.sidebar{padding:18px 10px}.logo{font-size:0;text-align:center}.logo:after{content:"T";font-size:24px}.new{font-size:0}.new:after{content:"+";font-size:20px}.nav button{font-size:0;text-align:center}.nav button:nth-child(1):before{content:"⌂";font-size:18px}.nav button:nth-child(2):before{content:"✦";font-size:18px}.nav button:nth-child(3):before{content:"⚙";font-size:18px}.side-note{display:none}.main{padding:23px 15px}.layout{grid-template-columns:1fr}.archive{display:none}}
 @media(max-width:650px){.top{align-items:flex-start;flex-direction:column}.search{width:100%}.editor{padding:19px}.title{font-size:30px}}
 
@@ -53,6 +53,7 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
 
 /* Clear blog navigation */
 .side-actions{display:grid;gap:8px;margin-top:2px}
+.sidebar-menu-divider{height:1px;background:rgba(255,255,255,.18);margin:2px 8px 6px}
 .side-action{width:100%;display:flex;align-items:center;gap:11px;border:1px solid #393633;background:#2b2927;color:#bcb7af;border-radius:12px;padding:12px 13px;text-align:left;font-weight:800}
 .side-action:hover{background:#35322f;color:#fff}
 .side-action.active{background:#3b354e;color:#fff;border-color:#564c72}
@@ -569,7 +570,7 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
  .voice-memo audio{width:100%;flex-basis:100%}
 }
 
-.backup-card{grid-column:1/-1;padding:22px}
+.backup-card{grid-column:1/-1;padding:22px;margin-bottom:16px}
 .backup-card h2{margin:5px 0 7px;font-size:21px}
 .backup-copy{margin:0 0 15px;max-width:720px;opacity:.65;font-size:12px;line-height:1.55}
 .backup-actions{display:flex;gap:9px;flex-wrap:wrap}
@@ -872,17 +873,18 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
   </div>
 
   <div class="side-actions">
-    <button class="side-action new-blog" onclick="showEditor();createPost()" title="Create a new thought">
-      <span class="action-icon">✎</span><span class="action-label">New Thought</span>
-    </button>
     <button class="side-action dashboard-nav" id="dashboardNav" onclick="showDashboard()" title="Open dashboard">
-      <span class="action-icon">▦</span><span class="action-label">Dashboard</span>
+      <span class="action-icon">📊</span><span class="action-label">Dashboard</span>
+    </button>
+    <div class="sidebar-menu-divider" aria-hidden="true"></div>
+    <button class="side-action new-blog" onclick="showEditor();createPost()" title="Create a new thought">
+      <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M11 34.5 31.8 13.7a4.4 4.4 0 0 1 6.2 0l1.3 1.3a4.4 4.4 0 0 1 0 6.2L18.5 42H10v-8.5Z" fill="#f4f5f7"/><path d="m11 34.5 7.5 7.5H10v-8.5Z" fill="#a28cff"/><path d="m31.8 13.7 3.1-3.1a3.5 3.5 0 0 1 5 0l1.5 1.5a3.5 3.5 0 0 1 0 5l-3.4 3.4" fill="#a28cff"/><path d="M18.5 42 20 34l8 6.5L18.5 42Z" fill="#202124"/><path d="m34.8 29.3-4.9 4.9" stroke="#6f7480" stroke-width="2.2" stroke-linecap="round"/></svg></span><span class="action-label">New Thought</span>
     </button>
     <button class="side-action all-blogs-nav" id="allThoughtsNav" onclick="showAllNotes()" title="Show all thoughts">
-      <span class="action-icon">▥</span><span class="action-label">All Thoughts</span>
+      <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><circle cx="15.5" cy="13.5" r="7" fill="#f4f5f7"/><path d="M5.5 36.5c0-7 4.2-11.8 10-11.8s10 4.8 10 11.8v2h-20v-2Z" fill="#f4f5f7"/><rect x="28" y="12" width="15" height="4.5" rx="2.25" fill="#a28cff"/><rect x="28" y="21.5" width="15" height="4.5" rx="2.25" fill="#a28cff"/><rect x="28" y="31" width="11.5" height="4.5" rx="2.25" fill="#a28cff"/></svg></span><span class="action-label">My Thoughts</span>
     </button>
-    <button class="side-action saved-toggle" id="savedToggle" onclick="toggleSavedPosts()" title="Show saved thoughts">
-      <span class="action-icon">▤</span><span class="action-label">Saved Thoughts</span>
+    <button class="side-action saved-toggle" id="savedToggle" onclick="toggleSavedPosts()" title="Show all saved thoughts">
+      <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><rect x="6" y="9" width="9" height="30" rx="2" fill="#f4f5f7"/><rect x="18" y="7" width="10" height="34" rx="2" fill="#a28cff"/><path d="M31.5 9.5a2 2 0 0 1 2.5-1.4l7.4 2.2a2 2 0 0 1 1.3 2.5l-7.9 26.8a2 2 0 0 1-2.5 1.4l-3.1-.9a2 2 0 0 1-1.4-2.5l7.2-24.4-3.5-1a2 2 0 0 1-0-2.7Z" fill="#f4f5f7"/><rect x="19.5" y="10" width="7" height="2.8" rx="1.4" fill="#c4b8ff"/></svg></span><span class="action-label">All Thoughts</span>
     </button>
   </div>
 
@@ -913,7 +915,7 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
     <div class="notes-heading">
       <div>
         <div class="dashboard-kicker">THOUGHTSPACE</div>
-        <h1>All my thoughts</h1>
+        <h1>My Thoughts</h1>
         <p>Every saved note, newest first.</p>
       </div>
       <button class="btn primary" type="button" onclick="showEditor();createPost()">✎ New Thought</button>
@@ -1044,8 +1046,27 @@ function ensureThoughtHeaderVisible(){
  if(main)main.style.display='';
 }
 
-const DB_NAME='thoughtspace_blog_db', DB_VERSION=1, STORE='pages';
-let posts=[], currentId=null, currentTags=[], dirty=false, saveTimer=null, db=null;
+// Storage is deliberately separated: Guest and each authenticated account use
+// different IndexedDB databases. This prevents account switching from reusing
+// the wrong database connection and removes the need to filter one shared store.
+const LEGACY_DB_NAME='thoughtspace_blog_db';
+const GUEST_DB_NAME='thoughtspace_guest_db';
+const ACCOUNT_DB_PREFIX='thoughtspace_account_';
+const DB_VERSION=1, STORE='pages';
+let DB_NAME=GUEST_DB_NAME;
+let posts=[], currentId=null, currentTags=[], dirty=false, saveTimer=null, db=null, saveInProgress=false;
+
+function storageDbName(userId=null){
+ const uid=String(userId||'').trim();
+ if(!uid)return GUEST_DB_NAME;
+ return ACCOUNT_DB_PREFIX+uid.replace(/[^a-zA-Z0-9_-]/g,'_');
+}
+
+function activeStorageUserId(){
+ try{
+  return typeof window.thoughtspaceActiveUserId==='function' ? window.thoughtspaceActiveUserId() : null;
+ }catch(e){return null}
+}
 
 function showLanding(){
  document.getElementById('landingPage').style.display='flex';
@@ -1265,34 +1286,95 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function plain(s){return String(s).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
 function toast(t){const x=document.getElementById('toast');if(!x)return;x.textContent=t;x.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display='none',1800)}
 
-function openDB(){
+function openDB(userId=null){
  return new Promise((resolve,reject)=>{
-  const req=indexedDB.open(DB_NAME,DB_VERSION);
+  const targetName=storageDbName(userId);
+  DB_NAME=targetName;
+  if(db && db.name===targetName){resolve(db);return;}
+  if(db){try{db.close()}catch(e){} db=null;}
+  const req=indexedDB.open(targetName,DB_VERSION);
   req.onupgradeneeded=e=>{
    const d=e.target.result;
    if(!d.objectStoreNames.contains(STORE)){
-    const s=d.createObjectStore(STORE,{keyPath:'id'});
-    s.createIndex('createdAt','createdAt',{unique:false});
-    s.createIndex('updatedAt','updatedAt',{unique:false});
+    const st=d.createObjectStore(STORE,{keyPath:'id'});
+    st.createIndex('createdAt','createdAt',{unique:false});
+    st.createIndex('updatedAt','updatedAt',{unique:false});
    }
   };
-  req.onsuccess=e=>{db=e.target.result;resolve(db)}
-  req.onerror=()=>reject(req.error)
+  req.onsuccess=e=>{
+   db=e.target.result;
+   db.onversionchange=()=>{try{db.close()}catch(err){}};
+   resolve(db);
+  };
+  req.onerror=()=>reject(req.error);
  })
 }
+
+async function useStorage(userId=null){
+ await openDB(userId);
+ return db;
+}
+
 function dbAll(){
- return new Promise((resolve,reject)=>{
-  const r=db.transaction(STORE,'readonly').objectStore(STORE).getAll();
-  r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)
+ return new Promise(async (resolve,reject)=>{
+  try{
+   if(!db)await useStorage(activeStorageUserId());
+   const r=db.transaction(STORE,'readonly').objectStore(STORE).getAll();
+   r.onsuccess=()=>resolve(r.result||[]);
+   r.onerror=()=>reject(r.error);
+  }catch(e){reject(e)}
  })
 }
-function dbPut(page){
+async function dbPut(page){
+ const targetUser=page?._ownerId||null;
+ await useStorage(targetUser);
  return new Promise((resolve,reject)=>{
-  const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(page);
-  r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)
+  let tx;
+  try{ tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(page); }
+  catch(e){ reject(e); return; }
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error || new Error('IndexedDB save transaction failed'));
+  tx.onabort=()=>reject(tx.error || new Error('IndexedDB save transaction aborted'));
  })
 }
-function dbDelete(id){
+
+async function migrateLegacyStorage(){
+ try{
+  const req=await new Promise((resolve,reject)=>{
+   const r=indexedDB.open(LEGACY_DB_NAME,DB_VERSION);
+   r.onsuccess=()=>resolve(r.result);
+   r.onerror=()=>reject(r.error);
+  });
+  if(!req.objectStoreNames.contains(STORE)){try{req.close()}catch(e){};return;}
+  const legacyRows=await new Promise((resolve,reject)=>{
+   const r=req.transaction(STORE,'readonly').objectStore(STORE).getAll();
+   r.onsuccess=()=>resolve(r.result||[]);
+   r.onerror=()=>reject(r.error);
+  });
+  try{req.close()}catch(e){}
+  for(const row of legacyRows){
+   if(!row||!row.id)continue;
+   await dbPut(row);
+  }
+ }catch(e){
+  console.warn('Thoughtspace legacy storage migration:',e);
+ }
+}
+
+function migrateOldData(){
+ return (async()=>{
+  try{
+   const old=JSON.parse(localStorage.getItem('thoughtspace_posts_v2')||'[]');
+   if(!Array.isArray(old)||!old.length)return;
+   for(const row of old){if(row&&row.id)await dbPut(row);}
+   localStorage.removeItem('thoughtspace_posts_v2');
+  }catch(e){console.warn('Thoughtspace localStorage migration:',e)}
+ })();
+}
+function saveAll(){return Promise.all(posts.map(p=>dbPut(p)))}
+
+async function dbDelete(id){
+ await useStorage(activeStorageUserId());
  return new Promise((resolve,reject)=>{
   const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);
   r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)
@@ -1424,7 +1506,10 @@ function cloudErrorMessage(error){
 
 async function savePost(silent=false){
  if(!currentId)return false;
- readEditor();
+ if(saveInProgress)return false;
+ saveInProgress=true;
+ try{
+  readEditor();
  const post=posts.find(x=>x.id===currentId);
  if(!post)return false;
 
@@ -1438,33 +1523,42 @@ async function savePost(silent=false){
  const owner=await cloudUser();
  if(owner)post._ownerId=owner.id;
  else delete post._ownerId;
+
+ // Explicitly select the correct storage bucket before every save.
+ await useStorage(post._ownerId||null);
+
+ // Local IndexedDB is the primary save. A successful local save must never
+ // be reported as a failed page save because of a later cloud/UI operation.
  try{
   await dbPut(post);
-  try{
-   const cloud=await cloudSavePost(post);
-   if(cloud.saved){
-    document.getElementById('status').textContent='Saved to Thoughtspace cloud '+new Date(post.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-   }else{
-    document.getElementById('status').textContent='Saved to this browser '+new Date(post.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-   }
-  }catch(cloudErr){
-   console.error('Thoughtspace cloud save:',cloudErr);
-   document.getElementById('status').textContent='Saved locally · cloud unavailable';
-   if(!silent)toast(cloudErrorMessage(cloudErr));
-  }
-  dirty=false;
-  renderArchive();
-  renderAllNotes();
-  if(!silent){
-   toast('Page saved');
-   showAllNotes();
-  }
-  return true;
  }catch(e){
+  console.error('Thoughtspace local save:',e);
   document.getElementById('status').textContent='Save failed';
-  toast('Could not save page');
+  if(!silent)toast('Could not save page');
   return false;
  }
+
+ try{
+  const cloud=await cloudSavePost(post);
+  if(cloud.saved){
+   document.getElementById('status').textContent='Saved to Thoughtspace cloud '+new Date(post.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  }else{
+   document.getElementById('status').textContent='Saved to this browser '+new Date(post.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  }
+ }catch(cloudErr){
+  console.error('Thoughtspace cloud save:',cloudErr);
+  document.getElementById('status').textContent='Saved locally · cloud unavailable';
+ }
+
+ dirty=false;
+ try{ renderArchive(); }catch(e){ console.error('Thoughtspace archive refresh:',e); }
+ try{ renderAllNotes(); }catch(e){ console.error('Thoughtspace notes refresh:',e); }
+ if(!silent){
+  toast('Page saved');
+  try{ showAllNotes(); }catch(e){ console.error('Thoughtspace navigation:',e); }
+ }
+ return true;
+ }finally{ saveInProgress=false; }
 }
 async function confirmLeaveUnsaved(){
  const p=posts.find(x=>x.id===currentId);
@@ -1721,12 +1815,12 @@ function renderArchive(){
   el.innerHTML='<h3>Saved Thoughts · '+(q?'Search':'Newest')+'</h3>'+
     Object.values(groups).map(g=>`
       <div class="date-group">
-        <button type="button" class="date-group-title" aria-expanded="true" onclick="toggleDateGroup(this)">
-          <span class="date-chevron">▾</span>
+        <button type="button" class="date-group-title" aria-expanded="false" onclick="toggleDateGroup(this)">
+          <span class="date-chevron">▸</span>
           <span>${esc(g.label)}</span>
           <span class="date-count">${g.posts.length}</span>
         </button>
-        <div class="date-group-posts">
+        <div class="date-group-posts" hidden>
           ${g.posts.map(p=>`<button type="button" class="post ${p.id===currentId?'active':''}" onclick="openSavedPost('${p.id}')"><strong>${esc(p.title||'Untitled page')}</strong></button>`).join('')}
         </div>
       </div>
@@ -1849,18 +1943,46 @@ function renderVoiceMemos(p){
  </div>`).join('');
 }
 
+async function optimizeImageForWeb(file){
+  // Keep the original dimensions only when they are already web-friendly.
+  // Larger images are resized to 1920px on the longest side and encoded as WebP.
+  const MAX=1920, QUALITY=.82;
+  if(!file.type.startsWith('image/')) return {data:await fileToDataURL(file),name:file.name};
+  try{
+    const url=URL.createObjectURL(file);
+    const img=await new Promise((resolve,reject)=>{
+      const i=new Image();
+      i.onload=()=>resolve(i); i.onerror=reject; i.src=url;
+    });
+    const scale=Math.min(1,MAX/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+    const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+    const h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+    const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d',{alpha:true});
+    ctx.drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);
+    const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('WebP conversion failed')),'image/webp',QUALITY));
+    const data=await fileToDataURL(blob);
+    const base=file.name.replace(/\.[^.]+$/,'')||'image';
+    return {data,name:base+'.webp'};
+  }catch(e){
+    console.warn('Thoughtspace image optimization failed; keeping original.',e);
+    return {data:await fileToDataURL(file),name:file.name};
+  }
+}
+
 async function handleMediaFiles(files){
  const p=posts.find(x=>x.id===currentId);
  if(!p)return;
  for(const file of Array.from(files||[])){
    if(!file.type.startsWith('image/')&&!file.type.startsWith('video/'))continue;
-   const data=await fileToDataURL(file);
+   const optimized=file.type.startsWith('image/') ? await optimizeImageForWeb(file) : {data:await fileToDataURL(file),name:file.name};
    p.media=p.media||[];
    p.media.push({
      type:file.type.startsWith('image/')?'image':'video',
-     name:file.name,
+     name:optimized.name,
      uploadedAt:new Date().toISOString(),
-     data
+     data:optimized.data
    });
  }
  dirty=true;
@@ -1969,8 +2091,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 (async function init(){
  try{
-  await openDB();
+  await migrateLegacyStorage();
   await migrateOldData();
+  await useStorage(null);
   posts=await dbAll();
   if(!posts.length){
    currentId=null;
@@ -1996,8 +2119,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('status').textContent='Saved to this browser';
   showLanding();
  }catch(e){
-  console.error(e);
-  toast('Could not load your thought library');
+  console.error('Thoughtspace local library initialization failed:',e);
+  posts=[];
+  currentId=null;
+  currentTags=[];
+  dirty=false;
+  try{ renderArchive(); }catch(renderErr){ console.error(renderErr); }
+  try{ renderTags(); }catch(renderErr){ console.error(renderErr); }
+  const title=document.getElementById('title');
+  const excerpt=document.getElementById('excerpt');
+  const content=document.getElementById('content');
+  if(title)title.value='';
+  if(excerpt)excerpt.value='';
+  if(content)content.innerHTML='';
+  const status=document.getElementById('status');
+  if(status)status.textContent='New untitled thought';
+  showLanding();
  }
 })();
 window.addEventListener('beforeunload',(e)=>{
@@ -2205,8 +2342,14 @@ document.addEventListener('DOMContentLoaded', function(){
     return;
   }
 
+  const sessionStorageAdapter = {
+    getItem(key){ try{return window.sessionStorage.getItem(key)}catch(e){return null;} },
+    setItem(key,value){ try{window.sessionStorage.setItem(key,value)}catch(e){} },
+    removeItem(key){ try{window.sessionStorage.removeItem(key)}catch(e){} }
+  };
+
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    auth: { persistSession:true, storage:sessionStorageAdapter, autoRefreshToken:true, detectSessionInUrl:true }
   });
   window.thoughtspaceSupabase = sb;
 
@@ -2319,42 +2462,6 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 
-<style id="v169-cloud-status-css">
-#ts-cloud-status{position:fixed;top:58px;right:22px;z-index:9998;display:none;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.72);font:700 10px/1 system-ui,sans-serif;letter-spacing:.05em;backdrop-filter:blur(8px)}
-</style>
-<div id="ts-cloud-status"></div>
-<script id="v169-cloud-storage-js">
-(function(){
- const sb=window.thoughtspaceSupabase;
- if(!sb)return;
- const badge=document.getElementById('ts-cloud-status');
- function badgeText(t){if(!badge)return;badge.textContent=t;badge.style.display=t?'block':'none';}
- async function syncAfterAuth(session){
-  if(!session?.user){badgeText('');return;}
-  badgeText('SYNCING CLOUD…');
-  try{
-   await cloudLoadAndMerge();
-   badgeText('CLOUD SYNCED');
-   setTimeout(()=>badgeText(''),1800);
-  }catch(e){
-   console.error('Thoughtspace cloud sync:',e);
-   badgeText('CLOUD ERROR');
-   setTimeout(()=>badgeText(''),5000);
-   toast(cloudErrorMessage(e));
-  }
- }
- sb.auth.getSession().then(({data})=>syncAfterAuth(data.session));
- sb.auth.onAuthStateChange((event,session)=>{
-  if(event==='SIGNED_IN' || event==='INITIAL_SESSION'){
-   // Defer database work so Supabase auth state processing can finish first.
-   setTimeout(()=>syncAfterAuth(session),0);
-  }
-  if(event==='SIGNED_OUT')badgeText('');
- });
-})();
-</script>
-
-
 <style id="v1691-account-isolation-css">
 #ts-account-scope-status{position:fixed;top:58px;right:22px;z-index:9998;display:none;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.72);font:700 10px/1 system-ui,sans-serif;letter-spacing:.05em;backdrop-filter:blur(8px)}
 </style>
@@ -2397,11 +2504,11 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   async function loadScopedLocal(userId){
-    const all=await dbAll();
-    posts=all.filter(p=>{
-      if(!p)return false;
-      return userId ? p._ownerId===userId : !p._ownerId;
-    });
+    while(saveInProgress)await new Promise(r=>setTimeout(r,25));
+    // Each scope has its own IndexedDB bucket. There is no shared-store filter
+    // here, so every stored note in the active bucket is visible.
+    await useStorage(userId||null);
+    posts=await dbAll();
     clearEditor();
     refreshViews();
   }
@@ -2409,6 +2516,7 @@ document.addEventListener('DOMContentLoaded', function(){
   async function loadAccount(session){
     const user=session?.user;
     if(!user)return;
+    if(typeof showLanding==='function')showLanding();
     activeUserId=user.id;
     status('LOADING CLOUD…');
     try{
@@ -2443,10 +2551,19 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
 
-  sb.auth.getSession().then(({data})=>{
-    if(data?.session?.user) loadAccount(data.session);
-    else enterGuest();
-  });
+  // INITIAL_SESSION is the single startup path; SIGNED_IN handles later logins.
+  // Do not call getSession() here as well, or the same cloud load can run twice.
+})();
+</script>
+
+
+<script id="v172-logout-refresh-fix">
+(function(){
+  const sb = window.thoughtspaceSupabase;
+  if(!sb) return;
+
+  // Do not clear or delete local records when there is no active session.
+  // The account-isolation handler owns guest/account view switching.
 })();
 </script>
 
