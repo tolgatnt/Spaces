@@ -757,6 +757,14 @@ h1{font-size:32px;line-height:1;margin:0 0 8px;letter-spacing:-1.2px}.sub{margin
 
 .note-excerpt{justify-self:end;width:100%;text-align:left}
 .note-time{justify-self:end;text-align:right}
+
+/* V18.1 test: keep sidebar labels/tabs hidden whenever sidebar is collapsed */
+#sidebar.collapsed .side-action .label,
+#sidebar.collapsed .side-action .side-label,
+#sidebar.collapsed .side-action .menu-label,
+#sidebar.collapsed .side-action .nav-label{
+ display:none !important;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
