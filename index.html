@@ -1278,6 +1278,12 @@ function startFromLanding(){
 function openSavedPost(id){
  showEditor();
  selectPost(id);
+ const sidebar=document.getElementById('sidebar');
+ if(sidebar){
+  sidebar.classList.remove('expanded');
+  sidebar.classList.add('collapsed');
+  document.body.classList.remove('sidebar-open');
+ }
 }
 
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
@@ -1603,7 +1609,9 @@ async function confirmLeaveUnsaved(){
 async function createPost(){
  ensureThoughtHeaderVisible();
  if(currentId&&dirty && !(await confirmLeaveUnsaved()))return;
- ensureSidebarExpanded();
+ const collapseOnNewThought=window.__tsCollapseOnNewThought===true;
+ window.__tsCollapseOnNewThought=false;
+ if(!collapseOnNewThought)ensureSidebarExpanded();
 
  // If the current post is already a blank unsaved draft, reuse it.
  const existingDraft=posts.find(p=>
@@ -1814,7 +1822,7 @@ function renderArchive(){
 
   el.innerHTML='<h3>Saved Thoughts · '+(q?'Search':'Newest')+'</h3>'+
     Object.values(groups).map(g=>`
-      <div class="date-group">
+      <div class="date-group collapsed">
         <button type="button" class="date-group-title" aria-expanded="false" onclick="toggleDateGroup(this)">
           <span class="date-chevron">▸</span>
           <span>${esc(g.label)}</span>
@@ -2565,6 +2573,43 @@ document.addEventListener('DOMContentLoaded', function(){
   // Do not clear or delete local records when there is no active session.
   // The account-isolation handler owns guest/account view switching.
 })();
+</script>
+
+<script id="v181-new-thought-collapse-test-2">
+/* V18.1 TEST 2: New Thought always collapses an expanded sidebar.
+   This is intentionally isolated to New Thought actions only. */
+document.addEventListener('DOMContentLoaded',function(){
+  const sidebar=document.getElementById('sidebar');
+  if(!sidebar)return;
+
+  const newThoughtSelectors=[
+    '.side-action.new-blog',
+    '.landing-new',
+    '#notesPage .btn.primary',
+    '#dashboardPage .btn.primary'
+  ];
+
+  document.addEventListener('click',function(e){
+    const target=e.target.closest(newThoughtSelectors.join(','));
+    if(!target)return;
+
+    // Capture before the existing onclick handlers run.
+    window.__tsCollapseOnNewThought=true;
+
+    // Collapse after the existing New Thought handler finishes any
+    // synchronous sidebar-expansion logic.
+    setTimeout(function(){
+      if(sidebar.classList.contains('collapsed'))return;
+      const button=document.getElementById('sidebarToggle');
+      sidebar.classList.add('collapsed');
+      if(button){
+        button.setAttribute('aria-label','Expand sidebar');
+        button.title='Expand sidebar';
+        button.textContent='›';
+      }
+    },0);
+  },true);
+});
 </script>
 
 </body>
