@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fitspace — Functional Master V9</title>
+<style>
+:root{
+ --bg:#f4f6fa;--card:#fff;--surface-alt:#f8f9fc;--text:#172033;--muted:#718096;
+ --line:#e1e5ec;--accent:#ff3b4f;--accent2:#ff7a86;--green:#21a675;
+ --sidebar:250px;--radius:16px;--gap:20px;--pad:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+
+.app-shell{min-height:100vh;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr)}
+.master-sidebar{
+ position:sticky;top:0;height:100vh;overflow:auto;background:rgba(58,64,76,.82);color:#fff;
+ border-right:1px solid #252a3c;padding:18px 14px;display:flex;flex-direction:column;
+;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-right:1px solid rgba(255,255,255,.10)}
+.brand{padding:8px 10px 22px;font-size:26px;font-weight:950;letter-spacing:-1px}
+.brand span{color:#ff3b4f}
+.menu-title{padding:9px 10px 7px;color:#788197;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.master-menu{display:grid;gap:5px}
+.master-menu button{
+ width:100%;min-height:44px;border:1px solid transparent;border-radius:11px;background:transparent;
+ color:#aeb6c8;display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;font-weight:800;
+}
+.master-menu button:hover{background:#2b3043;color:#fff}
+.master-menu button.active{background:#2b3043;color:#fff;border-color:#3b4155}
+.menu-icon{width:22px;text-align:center;flex:0 0 22px}
+
+
+.content-shell{min-width:0;display:flex;flex-direction:column}
+.content-bar{
+ position:sticky;top:0;z-index:10;height:76px;background:rgba(255,255,255,.97);
+ border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+ padding:0 30px;
+}
+.content-title{font-size:18px;font-weight:950}
+.content-subtitle{font-size:12px;color:var(--muted);margin-top:3px}
+.content-meta{font-size:12px;color:var(--muted)}
+.content-space{width:min(1180px,calc(100% - 48px));margin:0 auto;padding:28px 0 50px}
+
+.page{display:none}
+.card{
+ background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+ padding:var(--pad);margin:0 0 var(--gap);box-shadow:0 3px 12px rgba(24,32,51,.035);
+}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:var(--gap)}
+.full{grid-column:1/-1}
+.section-head,.active-goal,.goal-head{
+ display:flex;justify-content:space-between;align-items:flex-start;gap:15px;
+}
+.card h2{margin:0 0 5px;font-size:18px}.card p{margin:0;color:var(--muted);font-size:13px}
+.toolbar,.toolbar-inline{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:11px;padding:11px 16px;font-weight:800;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff;border:0}.btn.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.stat{background:var(--surface-alt);border-radius:12px;padding:15px;border:1px solid var(--line)}
+.stat strong{font-size:23px;display:block}.stat span{font-size:11px;color:var(--muted)}
+.weight{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.progress{height:10px;background:#edf0f5;border-radius:20px;overflow:hidden;margin-top:15px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:20px}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:12px}
+.exercise-list,.checklist{margin-top:18px;display:grid;gap:9px}
+.exercise,.task{border-top:1px solid var(--line);padding:13px 4px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.exercise-name,.task-name{font-weight:800}.meta{font-size:12px;color:var(--muted);margin-top:3px}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;margin-right:8px}
+.timer-controls{display:flex;align-items:center;gap:5px}.check{width:28px;height:28px;border-radius:9px;border:1px solid #dce1e9;background:#fff;display:grid;place-items:center;cursor:pointer}
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.photo{aspect-ratio:1;border-radius:15px;overflow:hidden;background:#f0f2f6;border:1px solid var(--line);position:relative}.photo img{width:100%;height:100%;object-fit:cover}
+.photo .remove{position:absolute;top:7px;right:7px;background:rgba(20,25,38,.75);color:#fff;border:0;border-radius:7px;padding:5px 7px;cursor:pointer}
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;background:#eef1f7;color:#667085}
+.badge.active{background:#e4f7ef;color:#16825b}.badge.planned{background:#fff0f2;color:#d12f42}.badge.completed{background:#e8eefc;color:#465db8}
+.goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+.goal-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 3px 12px rgba(24,32,51,.035);cursor:pointer}
+.goal-card:hover{border-color:var(--accent)}.goal-card h3{margin:12px 0 7px}.goal-card p{min-height:38px}
+.goal-stats{display:flex;gap:15px;flex-wrap:wrap;margin:15px 0;color:var(--muted);font-size:11px}.goal-stats b{color:var(--text);font-size:14px}
+.hero-percent{font-size:28px;font-weight:950;text-align:right}.hero-percent span{display:block;font-size:10px;color:var(--muted);font-weight:600}
+.challenge-meta{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0;color:var(--muted);font-size:12px}.challenge-meta b{color:var(--text)}
+.journal{border-top:1px solid var(--line);padding:18px 4px}.journal:first-child{border-top:0}.journal h3{margin:5px 0 7px}
+.journal-body{font-size:13px;line-height:1.65;color:#465164}.journal-date{font-size:10px;color:var(--accent);font-weight:900;text-transform:uppercase}
+.break-row,.timeline-row{display:grid;grid-template-columns:1fr 60px;gap:10px;padding:11px 3px;border-top:1px solid var(--line);font-size:12px}
+.timeline-row{grid-template-columns:1fr 1.5fr 45px;align-items:center}.timeline-progress{height:8px;background:#edf0f5;border-radius:20px;overflow:hidden}.timeline-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:20px}
+.workout-tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin:18px 0}.tab{border:0;background:transparent;padding:10px 14px;font-weight:800;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.log-head,.log-row{display:grid;grid-template-columns:1fr 1.5fr .7fr .6fr 2fr;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:12px}.log-head{font-size:10px;text-transform:uppercase;font-weight:900;color:var(--muted)}
+.textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;resize:vertical}
+label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}
+input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--text)}
+.modal{position:fixed;inset:0;background:rgba(15,20,35,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+.modal.show{display:flex}.modalbox{background:#fff;width:min(520px,100%);max-height:90vh;overflow:auto;border-radius:20px;padding:24px;box-shadow:0 25px 80px rgba(0,0,0,.2)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.small{font-size:11px;color:var(--muted)}
+
+@media(max-width:900px){
+ :root{--sidebar:78px}.master-sidebar{padding:14px 8px}.brand{font-size:0;text-align:center}
+ .menu-title,.menu-text,.collapse-panel{display:none}.master-menu button{justify-content:center;padding:11px 7px}.sidebar-bottom .collapse-toggle:after{content:"⋯";font-size:22px}
+ .content-bar{padding:0 18px}.content-space{width:calc(100% - 28px)}.grid{grid-template-columns:1fr}.full{grid-column:auto}.goal-grid{grid-template-columns:1fr}
+ .photos{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){.stats,.weight{grid-template-columns:repeat(2,1fr)}.content-meta{display:none}.timeline-row{grid-template-columns:1fr}.log-head,.log-row{grid-template-columns:1fr 1.4fr .7fr .6fr}.log-head span:last-child,.log-row span:last-child{display:none}}
+
+/* V10 TEST — Stopwatch-only repair */
+.quick-wrap{display:grid;gap:20px}
+.quick-card{max-width:900px;margin:0 auto;width:100%;padding:38px 28px;text-align:center}
+.quick-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;text-align:left}
+.big-clock{font-size:clamp(72px,13vw,150px);font-weight:950;letter-spacing:-6px;font-variant-numeric:tabular-nums;line-height:1;margin:45px 0 10px}
+.clock-status{color:var(--muted);font-weight:800;font-size:13px}
+.quick-actions{display:flex;justify-content:center;align-items:center;gap:16px;margin:28px 0}
+.quick-main{width:150px;height:150px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:19px;font-weight:950;cursor:pointer;box-shadow:0 12px 28px rgba(255,59,79,.2)}
+.quick-lap{width:68px;height:68px;border:1px solid var(--line);border-radius:50%;background:#fff;font-weight:900;cursor:pointer}
+.quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-top:20px}
+.quick-stats>div{background:var(--surface-alt);border:1px solid var(--line);border-radius:12px;padding:15px}
+.quick-stats span{display:block;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.7px}
+.quick-stats strong{display:block;margin-top:7px;font-size:22px;font-variant-numeric:tabular-nums}
+.quick-note{display:grid;gap:10px;text-align:left;max-width:600px;margin:24px auto 0}
+.quick-history-row{display:flex;justify-content:space-between;gap:15px;padding:13px 3px;border-top:1px solid var(--line);text-align:left}
+.quick-history-note{font-size:12px;color:var(--muted);margin-top:4px}
+.quick-laps{max-width:600px;margin:18px auto 0;text-align:left;max-height:240px;overflow:auto}
+.quick-lap-row{display:flex;justify-content:space-between;gap:15px;padding:11px 3px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+@media(max-width:620px){
+ .quick-card{padding:25px 12px}.quick-head{align-items:stretch}.quick-head .btn{padding:9px 11px}
+ .big-clock{letter-spacing:-3px}.quick-stats{grid-template-columns:1fr}
+}
+
+
+/* V11 TEST — Landing page only */
+.fitspace-landing{min-height:calc(100vh - 76px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.landing-panel{width:min(760px,100%);text-align:center;padding:70px 40px}
+.landing-logo{font-size:clamp(54px,9vw,92px);font-weight:950;letter-spacing:-4px;line-height:1}
+.landing-logo .landing-brand{color:#ff3b4f !important}.landing-logo .landing-space{color:#000 !important}
+.landing-kicker{display:inline-block;margin:18px 0 12px;padding:7px 12px;border-radius:999px;background:#ffedf0;color:var(--accent);font-size:10px;font-weight:950;letter-spacing:1px}
+.landing-panel h1{font-size:clamp(28px,5vw,44px);margin:10px 0 12px;letter-spacing:-1px}
+.landing-panel p{max-width:560px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.6}
+.landing-start{margin-top:32px;min-width:230px;min-height:56px;border:0;border-radius:14px;background:var(--accent);color:#fff;font-weight:950;font-size:16px;box-shadow:0 12px 28px rgba(255,59,79,.2)}
+.landing-start:hover{transform:translateY(-1px)}
+.landing-note{margin-top:18px;font-size:11px;color:var(--muted)}
+
+
+/* V13 TEST — independent landing screen */
+#fitspaceLandingScreen{
+  position:fixed;inset:0;z-index:2000;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;overflow:auto;
+}
+#fitspaceLandingScreen .landing-panel{
+  width:min(780px,calc(100% - 40px));text-align:center;
+  background:#fff;border:1px solid var(--line);border-radius:24px;
+  padding:72px 40px;box-shadow:0 18px 60px rgba(24,32,51,.08);
+}
+#fitspaceLandingScreen .landing-logo{
+  font-size:clamp(58px,10vw,96px);font-weight:950;letter-spacing:-5px;line-height:1;
+}
+#fitspaceLandingScreen .landing-logo .landing-brand{color:#ff3b4f !important}.landing-logo .landing-space{color:#000 !important}
+#fitspaceLandingScreen .landing-kicker{
+  display:inline-block;margin:20px 0 12px;padding:7px 12px;border-radius:999px;
+  background:#ffedf0;color:var(--accent);font-size:10px;font-weight:950;letter-spacing:1px;
+}
+#fitspaceLandingScreen h1{font-size:clamp(30px,5vw,46px);margin:10px 0 12px;letter-spacing:-1px}
+#fitspaceLandingScreen p{max-width:570px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.6}
+#fitspaceLandingScreen .landing-start{
+  margin-top:32px;min-width:235px;min-height:58px;border:0;border-radius:14px;
+  background:var(--accent);color:#fff;font-weight:950;font-size:16px;cursor:pointer;
+  box-shadow:0 12px 28px rgba(255,59,79,.2);
+}
+#fitspaceLandingScreen .landing-note{margin-top:18px;font-size:11px;color:var(--muted)}
+
+
+/* V14 TEST — landing page integrated into right content workspace */
+#fitspaceLandingPage{display:flex;min-height:calc(100vh - 182px);align-items:center;justify-content:center;box-sizing:border-box}
+#fitspaceLandingPage .landing-panel{
+ width:min(780px,100%);text-align:center;background:#fff;border:1px solid var(--line);
+ border-radius:24px;padding:70px 40px;box-shadow:0 12px 35px rgba(24,32,51,.055)
+}
+#fitspaceLandingPage .landing-logo{font-size:clamp(54px,8vw,88px);font-weight:950;letter-spacing:-4px;line-height:1}
+#fitspaceLandingPage .landing-logo .landing-brand{color:#ff3b4f !important}.landing-logo .landing-space{color:#000 !important}
+#fitspaceLandingPage .landing-kicker{
+ display:inline-block;margin:20px 0 12px;padding:7px 12px;border-radius:999px;
+ background:#ffedf0;color:var(--accent);font-size:10px;font-weight:950;letter-spacing:1px
+}
+#fitspaceLandingPage h1{font-size:clamp(30px,5vw,46px);margin:10px 0 12px;letter-spacing:-1px}
+#fitspaceLandingPage p{max-width:570px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.6}
+#fitspaceLandingPage .landing-start{
+ margin-top:32px;min-width:235px;min-height:58px;border:0;border-radius:14px;
+ background:var(--accent);color:#fff;font-weight:950;font-size:16px;cursor:pointer;
+ box-shadow:0 12px 28px rgba(255,59,79,.2)
+}
+#fitspaceLandingPage .landing-note{margin-top:18px;font-size:11px;color:var(--muted)}
+
+
+/* V16 TEST — clickable Fitspace logo, restored larger sizing */
+.brand-home{
+  display:block;width:100%;border:0;background:transparent;color:#fff;text-align:left;
+  font-family:inherit;font-size:26px;font-weight:950;line-height:1.1;
+  letter-spacing:-1px;padding:8px 10px 22px;cursor:pointer;
+}
+.brand-home span{color:#ff3b4f}
+.brand-home:hover{opacity:.88}
+
+
+/* V20 TEST — Quick Workout history delete only */
+.quick-history-row{align-items:center}
+.quick-history-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.quick-delete{border:1px solid #e1e5ec;background:#fff;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:11px;font-weight:800;color:#667085}
+.quick-delete:hover{border-color:#c7ccd6;color:#172033;background:#f8f9fc}
+
+
+/* V2.2 TEST — per Fitness Goal weight tracker */
+.goal-weight-box{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fafbfc}
+.goal-weight-box h3{margin:0 0 12px;font-size:15px}
+.goal-weight-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.goal-weight-fields label{display:block;font-size:10px;font-weight:800;color:var(--muted);margin-bottom:5px}
+.goal-weight-fields input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.goal-weight-track{height:9px;margin-top:13px;border-radius:999px;background:#e9edf3;overflow:hidden}
+.goal-weight-track i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.goal-weight-meta{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:var(--muted)}
+@media(max-width:600px){.goal-weight-fields{grid-template-columns:1fr}}
+
+
+/* V2.4 TEST — Dashboard Weight Goal primary functionality */
+.dashboard-weight-goal{padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff;margin-bottom:18px}
+.dashboard-weight-goal .dwg-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.dashboard-weight-goal .dwg-title h2{margin:0;font-size:20px}
+.dashboard-weight-goal .dwg-title span{font-size:11px;color:var(--muted);font-weight:800}
+.dwg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dwg-field label{display:block;font-size:10px;font-weight:800;color:var(--muted);margin-bottom:5px}
+.dwg-field select,.dwg-field input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.dwg-bar{height:12px;background:#e9edf3;border-radius:999px;overflow:hidden;margin-top:15px}
+.dwg-bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.dwg-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--muted)}
+@media(max-width:650px){.dwg-grid{grid-template-columns:1fr}}
+
+
+@media(max-width:620px){
+  #fitspaceLandingPage{
+    min-height:calc(100vh - 190px);
+    padding:16px 0 20px;
+  }
+}
+
+
+/* V3.5 TEST — authoritative responsive Fitspace wordmark: desktop = Fitspace, mobile = Fs */
+.brand-full{display:inline;color:#ff3b4f !important}
+.brand-full .brand-purple{color:#000 !important}
+.brand-mobile{display:none;font-size:inherit;line-height:inherit}
+.brand-mobile .mobile-f{color:#ff3b4f !important}
+.brand-mobile .mobile-s{color:#000 !important}
+@media(max-width:900px){
+  .brand-full{display:none !important}
+  .brand-mobile{display:inline !important}
+}
+
+</style>
+</head>
+<body>
+
+</div>
+
+<div class="app-shell">
+
+<aside class="master-sidebar">
+  <button class="brand brand-home" type="button" onclick="window.location.reload()" aria-label="Reload Fitspace"><span class="brand-full">Fit<span class="brand-purple">space</span></span><span class="brand-mobile" aria-hidden="true"><span class="mobile-f">F</span><span class="mobile-s">s</span></span></button>
+  <div class="menu-title">Master Menu</div>
+  <nav class="master-menu" id="masterMenu">
+    <button data-page="dashboard" onclick="showPage('dashboard',this)"><span class="menu-icon">⌂</span><span class="menu-text">Dashboard</span></button>
+    <button data-page="goals" onclick="showPage('goals',this)"><span class="menu-icon">◫</span><span class="menu-text">Fitness Goals</span></button>
+    <button data-page="workouts" onclick="showPage('workouts',this)"><span class="menu-icon">✓</span><span class="menu-text">Workouts</span></button>
+    <button data-page="quickWorkout" onclick="showPage('quickWorkout',this)"><span class="menu-icon">⏱</span><span class="menu-text">Stopwatch</span></button>
+    <button data-page="progress" onclick="showPage('progress',this)"><span class="menu-icon">↗</span><span class="menu-text">Progress</span></button>
+    <button data-page="photos" onclick="showPage('photos',this)"><span class="menu-icon">▧</span><span class="menu-text">Photos</span></button>
+  </nav>
+</aside>
+
+<div class="content-shell">
+  <header class="content-bar">
+    <div>
+      <div class="content-title" id="title"></div>
+      <div class="content-subtitle" id="subtitle">Your fitness journey starts here.</div>
+    </div>
+    <div class="content-meta" id="today"></div>
+  </header>
+  <main class="content-space">
+<section id="fitspaceLandingPage" class="page active">
+  <div class="landing-panel">
+    <div class="landing-logo"><span class="landing-brand">Fit</span><span class="landing-space">space</span></div>
+    <div class="landing-kicker">YOUR FITNESS • YOUR PROGRESS • YOUR SPACE</div>
+    <h1>Welcome to Fitspace</h1>
+    
+    <p>Start a workout, track your time, build fitness goals, and watch your progress grow.</p>
+    <button class="landing-start" type="button" onclick="enterFitspaceWorkout()">⏱ START A WORKOUT</button>
+    <div class="landing-note">Your workout opens directly in the Stopwatch.</div>
+  </div>
+</section>
+
+<section id="dashboard" class="page"><div class="grid"><div class="card"><h2>Weight Goal</h2><p>Set and edit your starting, current, and target weight.</p><div class="weight"><div class="stat"><span>Start</span><strong id="startW">—</strong></div><div class="stat"><span>Current</span><strong id="currentW">—</strong></div><div class="stat"><span>Goal</span><strong id="goalW">—</strong></div></div><div class="progress"><i id="weightBar" style="width:0%"></i></div><div class="editrow" style="margin-top:14px"><span class="small" id="weightPct">Set your goal to begin.</span><button class="iconbtn" onclick="openWeight()">Edit</button></div></div>
+<div class="card"><h2>Today</h2><p>Live workout snapshot.</p><div class="stats"><div class="stat"><span>Workout</span><strong id="workoutPct">0%</strong></div><div class="stat"><span>Exercises</span><strong id="exCount">0</strong></div><div class="stat"><span>Completed</span><strong id="doneCount">0</strong></div><div class="stat"><span>Sets Logged</span><strong id="setCount">0</strong></div></div></div>
+<div class="card"><div class="section-head"><div><h2>Today's Workout</h2><p>Start timers and check off exercises as you train.</p></div><button class="btn primary" onclick="openExercise()">+ Add Exercise</button></div><div id="exerciseList" class="exercise-list"></div><div class="toolbar" style="margin-top:16px;margin-bottom:0"><button class="btn secondary" onclick="showPage('workouts')">Open Workout Center</button><button class="btn secondary" onclick="resetDay()">Reset Today</button></div></div>
+<div class="card"><div class="section-head"><div><h2>Active Fitness Goal</h2><p>Your current challenge and workout milestones.</p></div><button class="btn primary" onclick="openGoal()">+ New Goal</button></div><div id="activeGoal"></div></div>
+<div class="card full"><div class="section-head"><div><h2>Recent Journal</h2><p>Your latest fitness-goal updates.</p></div><button class="btn secondary" onclick="showPage('goals')">Open Goals</button></div><div id="recentJournal"></div></div></div></section>
+<section id="goals" class="page" style="display:none"><div class="toolbar"><button class="btn primary" onclick="openGoal()">+ Create Fitness Goal</button></div><div id="goalGrid" class="goal-grid"></div></section>
+<section id="goalDetail" class="page" style="display:none"><div class="toolbar"><button class="btn secondary" onclick="showPage('goals')">← All Goals</button><button class="btn secondary" id="editGoalBtn">Edit Goal</button></div><div id="goalDetailContent"></div></section>
+
+<section id="quickWorkout" class="page" style="display:none">
+  <div class="quick-wrap">
+    <div class="card quick-card">
+      <div class="quick-head">
+        <div>
+          <span class="badge active">Quick Workout</span>
+          <h2>Quick Workout Stopwatch</h2>
+          <p>Start the clock and train. Log your workout when you're done.</p>
+        </div>
+        <button class="btn secondary" onclick="resetQuickWorkout()">Reset</button>
+      </div>
+      <div class="big-clock" id="quickClock">00:00:00</div>
+      <div class="clock-status" id="quickStatus">Ready to train</div>
+      <div class="quick-actions">
+        <button class="quick-main" id="quickStartBtn" onclick="toggleQuickWorkout()">START</button>
+        <button class="quick-lap" onclick="quickLap()">LAP</button>
+      </div>
+      <div class="quick-laps" id="quickLaps"></div>
+      <div class="quick-stats">
+        <div><span>Workout Time</span><strong id="quickElapsed">00:00:00</strong></div>
+        <div><span>Laps</span><strong id="quickLapCount">0</strong></div>
+        <div><span>Calories*</span><strong id="quickCalories">0</strong></div>
+      </div>
+      <div class="quick-note">
+        <input id="quickWorkoutName" placeholder="Workout name — e.g. Morning Push Day">
+        <textarea id="quickWorkoutNotes" rows="3" placeholder="Optional notes: what you did, how you felt, what you want to improve..."></textarea>
+        <div class="toolbar" style="margin-bottom:0"><button class="btn primary" onclick="saveQuickWorkout()">Save Workout</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-head"><div><h2>Recent Quick Workouts</h2><p>Your saved stopwatch sessions.</p></div></div>
+      <div id="quickHistory"></div>
+    </div>
+  </div>
+  <div class="small" style="margin-top:12px">*Calories are a simple estimate based on elapsed time and are not a medical-grade measurement.</div>
+</section>
+<section id="workouts" class="page" style="display:none"><div class="card"><div class="section-head"><div><h2>Workout Center</h2><p>Manage exercises, run individual timers, and log actual sets.</p></div><div class="toolbar-inline"><button class="btn secondary" onclick="openSetLog()">+ Log Set</button><button class="btn primary" onclick="openExercise()">+ Add Exercise</button></div></div><div class="workout-tabs"><button class="tab active" id="todayTab" onclick="setWorkoutTab('today')">Today's Workout</button><button class="tab" id="historyTab" onclick="setWorkoutTab('history')">Set History</button></div><div id="todayWorkout"></div><div id="historyWorkout" style="display:none"></div></div></section>
+<section id="progress" class="page" style="display:none"><div class="grid"><div class="card"><h2>Goal Progress</h2><p>Weight movement toward your target.</p><div class="weight"><div class="stat"><span>Start</span><strong id="pStart">—</strong></div><div class="stat"><span>Current</span><strong id="pCurrent">—</strong></div><div class="stat"><span>Goal</span><strong id="pGoal">—</strong></div></div><div class="progress"><i id="pBar" style="width:0%"></i></div><p id="pText" style="margin-top:10px"></p></div><div class="card"><h2>Goal Workout Progress</h2><p id="milestoneText">No goal workouts yet.</p><div class="progress"><i id="mBar" style="width:0%"></i></div><div id="goalBreakdown" style="margin-top:15px"></div></div></div><div class="card" style="margin-top:20px"><h2>Challenge Timeline</h2><div id="timeline"></div></div></section>
+<section id="photos" class="page" style="display:none"><div class="card"><div class="section-head"><div><h2>Progress Photos</h2><p>Photos are resized to max 900px and JPEG-compressed before local storage.</p></div><input id="photoInput" type="file" accept="image/*" multiple onchange="addGlobalPhotos(this.files)" style="max-width:330px"></div><div id="photoLarge" class="photos"></div></div></section>
+
+  </main>
+</div>
+</div>
+
+<div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle">Edit</h2><div id="modalBody"></div><div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn primary" id="modalSave">Save Changes</button></div></div>
+
+<script>
+
+const KEY='fitspace_v3';
+const defaults={weight:{start:'',current:'',goal:''},goals:[{id:'p15',name:'15-Day Challenge',days:15,startDate:'',status:'active',description:'Build momentum with consistent training.',exercises:[],posts:[],photos:[]},{id:'p30',name:'30-Day Challenge',days:30,startDate:'',status:'planned',description:'Establish a sustainable training routine.',exercises:[],posts:[],photos:[]},{id:'p45',name:'45-Day Challenge',days:45,startDate:'',status:'planned',description:'Push consistency, strength, and conditioning.',exercises:[],posts:[],photos:[]},{id:'p60',name:'60-Day Challenge',days:60,startDate:'',status:'planned',description:'Turn your routine into a measurable goal.',exercises:[],posts:[],photos:[]},{id:'p75',name:'75-Day Challenge',days:75,startDate:'',status:'planned',description:'Keep stacking completed workouts.',exercises:[],posts:[],photos:[]},{id:'p90',name:'90-Day Challenge',days:90,startDate:'',status:'planned',description:'A complete transformation goal.',exercises:[],posts:[],photos:[]}],exercises:[{id:'e1',name:'Squats',sets:3,reps:10,weight:135,seconds:60,done:false},{id:'e2',name:'Bench Press',sets:3,reps:8,weight:115,seconds:60,done:false},{id:'e3',name:'Plank',sets:3,reps:1,weight:0,seconds:60,done:false}],setLogs:[],photos:[]};
+let state=loadState(),timers={},currentGoal=null;
+function loadState(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x)return normalize(x)}catch(e){}return structuredClone(defaults)}
+function normalize(x){return {...structuredClone(defaults),...x,weight:{...defaults.weight,...(x.weight||{})},goals:(x.goals||defaults.goals).map(p=>({...p,exercises:Array.isArray(p.exercises)?p.exercises:[],posts:Array.isArray(p.posts)?p.posts:[],photos:Array.isArray(p.photos)?p.photos:[]})),exercises:Array.isArray(x.exercises)?x.exercises:defaults.exercises,setLogs:Array.isArray(x.setLogs)?x.setLogs:[],photos:Array.isArray(x.photos)?x.photos:[]}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));const s=document.getElementById('saveStatus');if(s)s.textContent='Saved locally · '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});render()}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function getGoal(id){return state.goals.find(p=>p.id===id)}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.style.display='none');const el=document.getElementById(id);if(el)el.style.display='block';document.querySelectorAll('#masterMenu button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');else{const n=document.querySelector(`#masterMenu button[data-page="${id}"]`);if(n)n.classList.add('active')}const titles={dashboard:['Fitness Dashboard','Your goals, workouts, and progress in one place.'],goals:['Fitness Goals','Each challenge is its own workout plan, journal, and visual progress record.'],workouts:['Workout Center','Manage exercises, timers, sets, reps, and training history.'],progress:['Progress','See your weight, workout, and challenge completion.'],photos:['Progress Photos','Visual checkpoints of your transformation.'],goalDetail:['Fitness Goal','Challenge details, milestones, journal, and photos.']};document.getElementById('title').textContent=titles[id]?.[0]||'Fitspace';document.getElementById('subtitle').textContent=titles[id]?.[1]||'';render()}
+function openGoalDetail(id){currentGoal=id;showPage('goalDetail');document.getElementById('editGoalBtn').onclick=()=>openGoal(id);render()}
+function openWeight(){modalTitle.textContent='Edit Weight Goal';modalBody.innerHTML=`<label>Starting weight</label><input id="wStart" type="number" step="0.1" value="${esc(state.weight.start)}"><label>Current weight</label><input id="wCurrent" type="number" step="0.1" value="${esc(state.weight.current)}"><label>Goal weight</label><input id="wGoal" type="number" step="0.1" value="${esc(state.weight.goal)}">`;modalSave.onclick=()=>{state.weight={start:wStart.value,current:wCurrent.value,goal:wGoal.value};closeModal();save()};modal.classList.add('show')}
+function openGoal(id){const p=id?getGoal(id):{id:null,name:'',days:30,startDate:new Date().toISOString().slice(0,10),status:'planned',description:'',exercises:[],posts:[],photos:[],weightStart:'',weightCurrent:'',weightGoal:''};modalTitle.textContent=id?'Edit Fitness Goal':'Create Fitness Goal';modalBody.innerHTML=`<label>Goal name</label><input id="prName" value="${esc(p.name)}"><label>Challenge length</label><select id="prDays">${[15,30,45,60,75,90].map(d=>`<option value="${d}" ${p.days===d?'selected':''}>${d} days</option>`).join('')}</select><label>Start date</label><input id="prDate" type="date" value="${esc(p.startDate)}"><label>Status</label><select id="prStatus"><option value="active" ${p.status==='active'?'selected':''}>Active</option><option value="planned" ${p.status==='planned'?'selected':''}>Planned</option><option value="completed" ${p.status==='completed'?'selected':''}>Completed</option></select><label>Description</label><textarea id="prDesc" class="textarea" rows="4">${esc(p.description)}</textarea><div class="goal-weight-box"><h3>Weight Goal Progress</h3><div class="goal-weight-fields"><div><label>Starting Weight</label><input id="prWeightStart" type="number" step="0.1" value="${esc(p.weightStart??'')}"></div><div><label>Current Weight</label><input id="prWeightCurrent" type="number" step="0.1" value="${esc(p.weightCurrent??'')}"></div><div><label>Goal Weight</label><input id="prWeightGoal" type="number" step="0.1" value="${esc(p.weightGoal??'')}"></div></div></div>`;modalSave.onclick=()=>{const d={name:prName.value.trim()||'Fitness Challenge',days:+prDays.value,startDate:prDate.value,status:prStatus.value,description:prDesc.value,weightStart:prWeightStart.value,weightCurrent:prWeightCurrent.value,weightGoal:prWeightGoal.value};if(id)Object.assign(p,d);else state.goals.push({...d,id:uid(),exercises:[],posts:[],photos:[]});closeModal();save();if(id)openGoalDetail(id)};modal.classList.add('show')}
+function deleteGoal(id){if(confirm('Delete this goal and all its workouts, posts, and photos?')){state.goals=state.goals.filter(p=>p.id!==id);if(currentGoal===id)currentGoal=null;save();showPage('goals')}}
+function openExercise(id,pid=null){const arr=pid?getGoal(pid).exercises:state.exercises;const old=id?arr.find(e=>e.id===id):null;const e=old||{id:null,name:'',sets:3,reps:10,weight:0,seconds:0,done:false};modalTitle.textContent=id?'Edit Exercise':'Add Exercise';modalBody.innerHTML=`<label>Exercise name</label><input id="eName" value="${esc(e.name)}"><label>Sets</label><input id="eSets" type="number" min="1" value="${e.sets}"><label>Reps</label><input id="eReps" type="number" min="1" value="${e.reps}"><label>Weight</label><input id="eWeight" type="number" min="0" step="0.5" value="${e.weight}"><label>Timer (seconds)</label><input id="eSeconds" type="number" min="0" value="${e.seconds}">`;modalSave.onclick=()=>{const n={id:e.id||uid(),name:eName.value.trim()||'Exercise',sets:+eSets.value||1,reps:+eReps.value||1,weight:+eWeight.value||0,seconds:+eSeconds.value||0,done:e.done};if(old)Object.assign(old,n);else arr.push(n);closeModal();save()};modal.classList.add('show')}
+function deleteExercise(id,pid=null){if(!confirm('Delete this exercise?'))return;const a=pid?getGoal(pid).exercises:state.exercises;a.splice(a.findIndex(e=>e.id===id),1);save()}
+function toggleExercise(id,pid=null){const a=pid?getGoal(pid).exercises:state.exercises,e=a.find(x=>x.id===id);if(e){e.done=!e.done;if(e.done)state.setLogs.unshift({id:uid(),date:new Date().toISOString(),exercise:e.name,weight:e.weight,reps:e.reps,sets:e.sets,goalId:pid||null,type:'completion'});save()}}
+function resetDay(){state.exercises.forEach(e=>e.done=false);save()}
+function format(sec){const m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function toggleTimer(id,pid=null){const a=pid?getGoal(pid).exercises:state.exercises,e=a.find(x=>x.id===id);if(!e||!e.seconds)return;const k=(pid||'global')+'_'+id;if(timers[k]){clearInterval(timers[k].int);delete timers[k];render();return}const end=Date.now()+e.seconds*1000;timers[k]={end,int:setInterval(()=>{if(Date.now()>=end){clearInterval(timers[k].int);delete timers[k];try{navigator.vibrate?.(120)}catch(_){}}render()},250)};render()}
+function timerText(e,pid=null){const t=timers[(pid||'global')+'_'+e.id];return t?format(Math.max(0,Math.ceil((t.end-Date.now())/1000))):format(e.seconds||0)}
+function exerciseHTML(e,pid=null){const k=(pid||'global')+'_'+e.id;return `<div class="exercise ${e.done?'completed':''}"><div><div class="exercise-name">${esc(e.name)}</div><div class="meta">${e.sets} sets × ${e.reps} reps${e.weight?' · '+e.weight+' lb':''}${e.seconds?' · '+e.seconds+'s timer':''}</div></div><div class="timer-controls">${e.seconds?`<span class="timer">${timerText(e,pid)}</span><button class="iconbtn" onclick="toggleTimer('${e.id}',${pid?`'${pid}'`:'null'})">${timers[k]?'Stop':'Start'}</button>`:''}<button class="check" onclick="toggleExercise('${e.id}',${pid?`'${pid}'`:'null'})">${e.done?'✓':''}</button><button class="iconbtn" onclick="openExercise('${e.id}',${pid?`'${pid}'`:'null'})">Edit</button><button class="iconbtn" onclick="deleteExercise('${e.id}',${pid?`'${pid}'`:'null'})">Delete</button></div></div>`}
+function goalPct(p){return p.exercises.length?Math.round(p.exercises.filter(e=>e.done).length/p.exercises.length*100):0}
+function daysElapsed(p){if(!p.startDate)return 0;const n=Math.floor((Date.now()-new Date(p.startDate+'T00:00:00'))/86400000)+1;return Math.max(0,Math.min(p.days,n))}
+function openPost(pid,id=null){const p=getGoal(pid),old=id?p.posts.find(x=>x.id===id):null,x=old||{id:null,title:'',date:new Date().toISOString().slice(0,10),body:''};modalTitle.textContent=id?'Edit Journal Entry':'Write Journal Entry';modalBody.innerHTML=`<label>Title</label><input id="postTitle" value="${esc(x.title)}"><label>Date</label><input id="postDate" type="date" value="${esc(x.date)}"><label>Journal</label><textarea id="postBody" class="textarea" rows="10" placeholder="Workout, energy, wins, challenges, measurements, thoughts...">${esc(x.body)}</textarea>`;modalSave.onclick=()=>{const n={id:x.id||uid(),title:postTitle.value.trim()||'Fitness Journal Entry',date:postDate.value||new Date().toISOString().slice(0,10),body:postBody.value};if(old)Object.assign(old,n);else p.posts.unshift(n);closeModal();save()};modal.classList.add('show')}
+function deletePost(pid,id){if(confirm('Delete this journal entry?')){const p=getGoal(pid);p.posts=p.posts.filter(x=>x.id!==id);save()}}
+function openSetLog(){modalTitle.textContent='Log Completed Set';modalBody.innerHTML=`<label>Exercise</label><select id="logExercise">${state.exercises.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select><label>Weight</label><input id="logWeight" type="number" step="0.5"><label>Reps</label><input id="logReps" type="number" min="1"><label>Notes</label><textarea id="logNotes" class="textarea" rows="3"></textarea>`;modalSave.onclick=()=>{const e=state.exercises.find(x=>x.id===logExercise.value);state.setLogs.unshift({id:uid(),date:new Date().toISOString(),exercise:e?.name||'Exercise',weight:+logWeight.value||0,reps:+logReps.value||0,sets:1,notes:logNotes.value,goalId:null,type:'set'});closeModal();save();setWorkoutTab('history')};modal.classList.add('show')}
+function setWorkoutTab(which){todayWorkout.style.display=which==='today'?'block':'none';historyWorkout.style.display=which==='history'?'block':'none';todayTab.classList.toggle('active',which==='today');historyTab.classList.toggle('active',which==='history');render()}
+function journalHTML(p){return p.posts.map(x=>`<article class="journal"><div class="journal-date">${esc(x.date)}</div><h3>${esc(x.title)}</h3><div class="journal-body">${esc(x.body).replace(/\n/g,'<br>')}</div><div class="toolbar" style="margin-top:10px;margin-bottom:0"><button class="iconbtn" onclick="openPost('${p.id}','${x.id}')">Edit</button><button class="iconbtn danger" onclick="deletePost('${p.id}','${x.id}')">Delete</button></div></article>`).join('')||'<div class="empty">No journal entries yet.</div>'}
+function photoHTML(arr,pid=null){return arr.map((x,i)=>`<div class="photo-wrap"><div class="photo"><img src="${x.data||x}" alt="Progress photo"></div><button class="remove" onclick="deletePhoto(${i},${pid?`'${pid}'`:'null'})">×</button>${x.date?`<div class="photo-meta">${new Date(x.date).toLocaleDateString()}</div>`:''}</div>`).join('')||'<div class="empty" style="grid-column:1/-1">No progress photos yet.</div>'}
+function compress(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.72))};img.onerror=reject;img.src=ev.target.result};r.onerror=reject;r.readAsDataURL(file)})}
+async function addGoalPhotos(pid,files){const p=getGoal(pid);for(const f of files){if(f.type.startsWith('image/'))p.photos.push({id:uid(),data:await compress(f),date:new Date().toISOString()})}save()}
+async function addGlobalPhotos(files){for(const f of files){if(f.type.startsWith('image/'))state.photos.push({id:uid(),data:await compress(f),date:new Date().toISOString()})}photoInput.value='';save()}
+function deletePhoto(i,pid=null){if(pid)getGoal(pid).photos.splice(i,1);else state.photos.splice(i,1);save()}
+
+function fitnessGoalWeightPercent(g){
+  const s=parseFloat(g.weightStart),c=parseFloat(g.weightCurrent),t=parseFloat(g.weightGoal);
+  if(!Number.isFinite(s)||!Number.isFinite(c)||!Number.isFinite(t)||s===t)return 0;
+  return Math.max(0,Math.min(100,((c-s)/(t-s))*100));
+}
+function updateFitnessGoalWeight(id,field,value){
+  const g=getGoal(id); if(!g)return;
+  g[field]=value===''?'':Number(value);
+  save();
+  openGoalDetail(id);
+}
+function fitnessGoalWeightHTML(g){
+  const p=fitnessGoalWeightPercent(g);
+  const s=g.weightStart??'',c=g.weightCurrent??'',t=g.weightGoal??'';
+  return `<div class="goal-weight-box">
+    <div class="weight-goal-heading"><h3>Weight Goal</h3><span>${p.toFixed(0)}% complete</span></div>
+    <div class="goal-weight-fields">
+      <div><label>Starting Weight</label><input type="number" step="0.1" value="${s}" onclick="event.stopPropagation()" onchange="updateFitnessGoalWeight('${g.id}','weightStart',this.value)"></div>
+      <div><label>Current Weight</label><input type="number" step="0.1" value="${c}" onclick="event.stopPropagation()" onchange="updateFitnessGoalWeight('${g.id}','weightCurrent',this.value)"></div>
+      <div><label>Goal Weight</label><input type="number" step="0.1" value="${t}" onclick="event.stopPropagation()" onchange="updateFitnessGoalWeight('${g.id}','weightGoal',this.value)"></div>
+    </div>
+    <div class="goal-weight-track"><i style="width:${p}%"></i></div>
+    <div class="goal-weight-meta"><span>${c!==''?c:'—'} current</span><span>${t!==''?t:'—'} goal</span></div>
+  </div>`;
+}
+
+function goalCard(p){const q=goalPct(p);return `<div class="goal-card" onclick="openGoalDetail('${p.id}')"><div class="goal-head"><span class="badge ${p.status}">${esc(p.status)}</span><span class="small">${p.days} days</span></div><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="goal-stats"><span><b>${p.exercises.length}</b> workouts</span><span><b>${p.posts.length}</b> posts</span><span><b>${p.photos.length}</b> photos</span></div><div class="small">${p.startDate?`Day ${daysElapsed(p)} of ${p.days}`:'Start date not set'}</div><div class="progress"><i style="width:${q}%"></i></div><div class="small">${q}% workout milestones complete</div>${fitnessGoalWeightHTML(p)}</div>`}
+function goalDetailHTML(p){const q=goalPct(p);return `<div class="card"><div class="goal-head"><div><span class="badge ${p.status}">${esc(p.status)}</span><h2 style="margin-top:10px">${esc(p.name)}</h2><p>${esc(p.description)}</p></div><div class="hero-percent">${q}%<span>workouts complete</span></div></div><div class="challenge-meta"><span><b>${p.days}</b> days</span><span><b>${daysElapsed(p)}</b> elapsed</span><span><b>${p.exercises.length}</b> milestones</span><span><b>${p.posts.length}</b> posts</span></div><div class="progress"><i style="width:${q}%"></i></div>${fitnessGoalWeightHTML(p)}</div><div class="grid" style="margin-top:20px"><div class="card"><div class="section-head"><div><h2>Workout Milestones</h2><p>These workouts drive goal progress.</p></div><button class="btn primary" onclick="openExercise(null,'${p.id}')">+ Add Workout</button></div><div class="exercise-list">${p.exercises.map(e=>exerciseHTML(e,p.id)).join('')||'<div class="empty">No goal workouts yet.</div>'}</div></div><div class="card"><div class="section-head"><div><h2>Goal Photos</h2><p>Photos stay with this challenge.</p></div><input type="file" accept="image/*" multiple onchange="addGoalPhotos('${p.id}',this.files)" style="max-width:200px"></div><div class="photos">${photoHTML(p.photos,p.id)}</div><div class="small">Images are resized and compressed before storage.</div></div><div class="card full"><div class="section-head"><div><h2>Fitness Goal Blog</h2><p>Document the journey and each milestone.</p></div><button class="btn primary" onclick="openPost('${p.id}')">+ Write Update</button></div>${journalHTML(p)}</div><div class="card full"><div class="section-head"><div><h2>Goal Controls</h2><p>Edit the challenge or remove it.</p></div><button class="iconbtn danger" onclick="deleteGoal('${p.id}')">Delete Goal</button></div></div></div>`}
+
+function dashboardWeightGoalHTML(){
+  const goals=state.goals||[];
+  const g=goals.find(x=>x.status==='active')||goals[0];
+  if(!g)return `<section class="dashboard-weight-goal"><div class="dwg-title"><h2>Weight Goal</h2></div><p class="small">Create a Fitness Goal to start tracking your weight.</p></section>`;
+  const p=fitnessGoalWeightPercent(g);
+  return `<section class="dashboard-weight-goal">
+    <div class="dwg-title"><h2>Weight Goal</h2><span>${esc(g.name)} · ${g.days}-day goal</span></div>
+    <div class="dwg-grid">
+      <div class="dwg-field"><label>Fitness Goal</label><select onchange="dashboardSelectWeightGoal(this.value)">${goals.map(x=>`<option value="${x.id}" ${String(x.id)===String(g.id)?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="dwg-field"><label>Starting Weight</label><input type="number" step="0.1" value="${g.weightStart??''}" onchange="updateDashboardWeight(this.value,'weightStart','${g.id}')"></div>
+      <div class="dwg-field"><label>Current Weight</label><input type="number" step="0.1" value="${g.weightCurrent??''}" onchange="updateDashboardWeight(this.value,'weightCurrent','${g.id}')"></div>
+      <div class="dwg-field"><label>Goal Weight</label><input type="number" step="0.1" value="${g.weightGoal??''}" onchange="updateDashboardWeight(this.value,'weightGoal','${g.id}')"></div>
+    </div>
+    <div class="dwg-bar"><i style="width:${p}%"></i></div>
+    <div class="dwg-meta"><span>${p.toFixed(0)}% toward weight goal</span><span>${g.weightCurrent!==''&&g.weightCurrent!=null?g.weightCurrent:'—'} → ${g.weightGoal!==''&&g.weightGoal!=null?g.weightGoal:'—'}</span></div>
+  </section>`;
+}
+function dashboardSelectWeightGoal(id){
+  const el=document.getElementById('app');
+  if(typeof renderDashboard==='function')renderDashboard();
+}
+function updateDashboardWeight(value,field,id){
+  updateFitnessGoalWeight(id,field,value);
+}
+
+function render(){const w=state.weight,wp=weightPct(),done=state.exercises.filter(e=>e.done).length,total=state.exercises.length;startW.textContent=w.start?w.start+' lb':'—';currentW.textContent=w.current?w.current+' lb':'—';goalW.textContent=w.goal?w.goal+' lb':'—';weightBar.style.width=wp+'%';weightPct.textContent=wp?Math.round(wp)+'% toward goal':'Set your goal to begin.';workoutPct.textContent=total?Math.round(done/total*100)+'%':'0%';exCount.textContent=total;doneCount.textContent=done;setCount.textContent=state.setLogs.length;exerciseList.innerHTML=state.exercises.map(e=>exerciseHTML(e)).join('')||'<div class="empty">No exercises yet.</div>';todayWorkout.innerHTML=state.exercises.map(e=>exerciseHTML(e)).join('')||'<div class="empty">No exercises yet.</div>';goalGrid.innerHTML=state.goals.map(goalCard).join('');const active=state.goals.find(p=>p.status==='active')||state.goals[0];activeGoal.innerHTML=active?`<div class="active-goal" onclick="openGoalDetail('${active.id}')"><div><span class="badge ${active.status}">${esc(active.status)}</span><h3>${esc(active.name)}</h3><p>${esc(active.description)}</p><div class="small">Day ${daysElapsed(active)} of ${active.days} · ${active.exercises.filter(e=>e.done).length}/${active.exercises.length} workouts complete</div></div><div class="hero-percent">${goalPct(active)}%<span>complete</span></div></div>`:'<div class="empty">Create your first goal.</div>';const posts=state.goals.flatMap(p=>p.posts.map(x=>({...x,goal:p.name}))).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);recentJournal.innerHTML=posts.map(x=>`<article class="journal"><div class="journal-date">${esc(x.goal)} · ${esc(x.date)}</div><h3>${esc(x.title)}</h3><div class="journal-body">${esc(x.body).slice(0,220)}${x.body.length>220?'…':''}</div></article>`).join('')||'<div class="empty">No journal entries yet.${fitnessGoalWeightHTML(p)}</div>';pStart.textContent=w.start?w.start+' lb':'—';pCurrent.textContent=w.current?w.current+' lb':'—';pGoal.textContent=w.goal?w.goal+' lb':'—';pBar.style.width=wp+'%';pText.textContent=wp?Math.round(wp)+'% of the distance from start to goal.':'Enter your weights to calculate progress.';const all=state.goals.reduce((n,p)=>n+p.exercises.length,0),ad=state.goals.reduce((n,p)=>n+p.exercises.filter(e=>e.done).length,0);milestoneText.textContent=`${ad} of ${all} goal workout milestones complete (${all?Math.round(ad/all*100):0}%).`;mBar.style.width=(all?ad/all*100:0)+'%';goalBreakdown.innerHTML=state.goals.map(p=>`<div class="break-row"><span>${esc(p.name)}</span><b>${goalPct(p)}%</b></div>`).join('');timeline.innerHTML=state.goals.map(p=>`<div class="timeline-row"><div><b>${esc(p.name)}</b><div class="small">${p.startDate||'No start date'} · ${p.days} days</div></div><div class="timeline-progress"><i style="width:${goalPct(p)}%"></i></div><strong>${goalPct(p)}%</strong></div>`).join('');photoLarge.innerHTML=photoHTML(state.photos);historyWorkout.innerHTML=state.setLogs.length?`<div class="log-table"><div class="log-head"><span>Date</span><span>Exercise</span><span>Weight</span><span>Reps</span><span>Notes</span></div>${state.setLogs.map(l=>`<div class="log-row"><span>${new Date(l.date).toLocaleDateString()}</span><span>${esc(l.exercise)}</span><span>${l.weight||'—'}</span><span>${l.reps||'—'}</span><span>${esc(l.notes||'')}</span></div>`).join('')}</div>`:'<div class="empty">No set history yet.</div>';if(currentGoal&&getGoal(currentGoal))goalDetailContent.innerHTML=goalDetailHTML(getGoal(currentGoal));renderQuick();
+ today.textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric',year:'numeric'})}
+function weightPct(){const s=+state.weight.start,c=+state.weight.current,g=+state.weight.goal;if(!s||!g||s===g)return 0;return Math.max(0,Math.min(100,(s-c)/(s-g)*100))}
+
+const QS={
+  clock:document.getElementById('quickClock'),
+  status:document.getElementById('quickStatus'),
+  start:document.getElementById('quickStartBtn'),
+  elapsed:document.getElementById('quickElapsed'),
+  lapCount:document.getElementById('quickLapCount'),
+  calories:document.getElementById('quickCalories'),
+  laps:document.getElementById('quickLaps'),
+  history:document.getElementById('quickHistory'),
+  name:document.getElementById('quickWorkoutName'),
+  notes:document.getElementById('quickWorkoutNotes')
+};
+const QUICK_SESSION_KEY='fitspace_quick_stopwatch_session_v10';
+let quickTimer=null,quickStartedAt=null,quickElapsedSeconds=0,quickLaps=[];
+
+function timeHMS(s){
+  let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;
+  return [h,m,x].map(v=>String(v).padStart(2,'0')).join(':');
+}
+function saveQuickSession(){
+  localStorage.setItem(QUICK_SESSION_KEY,JSON.stringify({
+    elapsed:quickElapsedSeconds,laps:quickLaps,
+    name:QS.name?.value||'',notes:QS.notes?.value||''
+  }));
+}
+function loadQuickSession(){
+  try{
+    const x=JSON.parse(localStorage.getItem(QUICK_SESSION_KEY)||'null');
+    if(!x)return;
+    quickElapsedSeconds=Number(x.elapsed)||0;
+    quickLaps=Array.isArray(x.laps)?x.laps:[];
+    if(QS.name)QS.name.value=x.name||'';
+    if(QS.notes)QS.notes.value=x.notes||'';
+  }catch(e){}
+}
+function clearQuickSession(){localStorage.removeItem(QUICK_SESSION_KEY)}
+function toggleQuickWorkout(){
+  if(quickTimer){
+    clearInterval(quickTimer);
+    quickTimer=null;
+    quickElapsedSeconds=Math.floor((Date.now()-quickStartedAt)/1000);
+    quickStartedAt=null;
+    if(QS.start)QS.start.textContent='RESUME';
+    if(QS.status)QS.status.textContent='Workout paused';
+    saveQuickSession();renderQuick();
+    return;
+  }
+  quickStartedAt=Date.now()-quickElapsedSeconds*1000;
+  quickTimer=setInterval(()=>{
+    quickElapsedSeconds=Math.floor((Date.now()-quickStartedAt)/1000);
+    renderQuick();
+    saveQuickSession();
+  },250);
+  if(QS.start)QS.start.textContent='STOP';
+  if(QS.status)QS.status.textContent='Workout in progress';
+  renderQuick();
+}
+function quickLap(){
+  if(quickElapsedSeconds<=0)return;
+  const previous=quickLaps.reduce((sum,lap)=>sum+Number(lap.duration||0),0);
+  quickLaps.push({duration:Math.max(0,quickElapsedSeconds-previous),time:quickElapsedSeconds});
+  saveQuickSession();renderQuick();
+}
+function resetQuickWorkout(){
+  if(quickTimer)clearInterval(quickTimer);
+  quickTimer=null;quickStartedAt=null;quickElapsedSeconds=0;quickLaps=[];
+  if(QS.start)QS.start.textContent='START';
+  if(QS.status)QS.status.textContent='Ready to train';
+  if(QS.name)QS.name.value='';
+  if(QS.notes)QS.notes.value='';
+  clearQuickSession();renderQuick();
+}
+function saveQuickWorkout(){
+  if(!quickElapsedSeconds){alert('Start the stopwatch before saving a workout.');return}
+  if(!state.quickWorkouts)state.quickWorkouts=[];
+  state.quickWorkouts.unshift({
+    id:uid(),date:new Date().toISOString(),
+    name:QS.name?.value.trim()||'Quick Workout',
+    seconds:quickElapsedSeconds,laps:quickLaps.map(x=>({...x})),
+    notes:QS.notes?.value.trim()||''
+  });
+  save();
+  resetQuickWorkout();
+  alert('Workout saved.');
+}
+
+function deleteQuickWorkout(id){
+  if(!Array.isArray(state.quickWorkouts)) return;
+  const workout=state.quickWorkouts.find(w=>String(w.id)===String(id));
+  if(!workout) return;
+  if(!confirm(`Delete "${workout.name || 'Quick Workout'}" from Recent Quick Workouts?`)) return;
+  state.quickWorkouts=state.quickWorkouts.filter(w=>String(w.id)!==String(id));
+  save();
+  renderQuick();
+}
+
+function renderQuick(){
+  if(!QS.clock)return;
+  QS.clock.textContent=timeHMS(quickElapsedSeconds);
+  QS.elapsed.textContent=timeHMS(quickElapsedSeconds);
+  QS.lapCount.textContent=quickLaps.length;
+  QS.calories.textContent=Math.round(quickElapsedSeconds/60*7);
+
+  QS.laps.innerHTML=quickLaps.map((lap,i)=>
+    `<div class="quick-lap-row"><span>Lap ${i+1}</span><strong>${timeHMS(lap.duration||0)}</strong></div>`
+  ).join('');
+
+  QS.history.innerHTML=(state.quickWorkouts||[]).slice(0,10).map(w=>
+    `<div class="quick-history-row"><div><b>${esc(w.name)}</b><div class="small">${new Date(w.date).toLocaleString()} · ${(w.laps||[]).length} laps</div>${w.notes?`<div class="quick-history-note">${esc(w.notes)}</div>`:''}</div><div class="quick-history-actions"><strong>${timeHMS(w.seconds)}</strong><button class="quick-delete" type="button" onclick="deleteQuickWorkout('${String(w.id).replace(/'/g,"\\'")}')">Delete</button></div></div>`
+  ).join('')||'<div class="empty">No quick workouts saved yet.</div>';
+}
+loadQuickSession();
+renderQuick();
+
+function closeModal(){modal.classList.remove('show')}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});render();
+
+
+function startFromLanding(){
+  showPage('quickWorkout');
+  const b=document.querySelector('#masterMenu button[data-page="quickWorkout"]');
+  if(b){document.querySelectorAll('#masterMenu button').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
+  if(typeof renderQuick==='function')renderQuick();
+}
+
+</script>
+
+<script>
+/* V14 TEST — integrated landing navigation */
+function enterFitspaceWorkout(){
+  const landing=document.getElementById('fitspaceLandingPage');
+  if(landing) landing.classList.remove('active');
+  if(typeof showPage==='function') showPage('quickWorkout');
+  const b=document.querySelector('#masterMenu button[data-page="quickWorkout"]');
+  if(b){
+    document.querySelectorAll('#masterMenu button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }
+  if(typeof renderQuick==='function') renderQuick();
+}
+</script>
+
+</body>
+</html>

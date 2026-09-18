@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moodspace — Mood Check-In Prototype</title>
+<style>
+  :root{
+    --bg:#f3faff; --card:#ffffff; --text:#172033; --muted:#64748b;
+    --line:#dcecf7; --accent:#4aa8df; --accent2:#7bc7ee;
+    --shadow:0 18px 50px rgba(31,41,55,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+  .app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  aside{background:#eaf7ff;color:#163247;padding:28px 18px;position:sticky;top:0;height:100vh}
+  .brand{font-size:23px;font-weight:800;letter-spacing:-.7px;padding:4px 12px 28px}
+  .brand span{color:#a78bfa}
+  nav button{width:100%;border:0;background:transparent;color:#4d7188;text-align:left;padding:12px 14px;border-radius:12px;margin:4px 0;font-size:14px;cursor:pointer}
+  nav button.active,nav button:hover{background:#252d3d;color:#fff}
+  .side-note{position:absolute;bottom:22px;left:25px;right:25px;color:#7091a5;font-size:12px;line-height:1.5}
+  main{padding:34px;max-width:1300px;width:100%;margin:auto}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+  h1{margin:0;font-size:30px;letter-spacing:-1px}
+  .subtitle{color:var(--muted);margin-top:7px}
+  .date{font-size:13px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:10px}
+  .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 6px;font-size:18px}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .moods{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  .mood{border:1px solid var(--line);background:#fafbfc;border-radius:15px;padding:15px 8px;text-align:center;cursor:pointer;transition:.18s}
+  .mood:hover{transform:translateY(-2px);border-color:#c7c9ff}
+  .mood.selected{outline:3px solid rgba(74,168,223,.18);border-color:var(--accent);background:#f7f6ff}
+  .emoji{font-size:29px;display:block;margin-bottom:8px}
+  .mood strong{font-size:12px}
+  textarea{width:100%;resize:vertical;min-height:100px;margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:13px;font:inherit;outline:none}
+  textarea:focus{border-color:var(--accent)}
+  .btn{margin-top:12px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700;padding:12px 18px;border-radius:12px;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .status{font-size:12px;color:#64748b;margin-top:9px;min-height:18px}
+  .checkin-summary-wrap{margin-top:18px;overflow:hidden;border:1px solid var(--line);border-radius:16px}
+  .checkin-summary{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+  .checkin-summary td{width:25%;padding:14px 10px;text-align:center;vertical-align:middle;border-right:1px solid var(--line)}
+  .checkin-summary td:last-child{border-right:0}
+  .summary-value{display:block;font-size:17px;font-weight:800;line-height:1.2}
+  .summary-label{display:block;margin-top:5px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .chart-wrap{display:grid;grid-template-columns:1fr;align-items:center;justify-items:center;margin-top:28px}
+  .chart-table{width:100%;border-collapse:separate;border-spacing:0}
+  .chart-table td{padding:0;text-align:center;vertical-align:middle}
+  .chart-table .pie-cell{height:330px;text-align:center;vertical-align:middle}
+  .chart-table .pie{margin:0 auto}
+  .pie{width:330px;height:330px;border-radius:50%;background:conic-gradient(#635bff 0 30%,#ef6a8a 30% 55%,#f3b94f 55% 100%);position:relative;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+  .pie:after{content:"";position:absolute;inset:82px;border-radius:50%;background:#fff}
+  .pie-labels{position:absolute;inset:0;z-index:2}
+  .pie-label{position:absolute;transform:translate(-50%,-50%);font-size:17px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);pointer-events:none}
+  .legend{display:grid;gap:22px}
+  .legend{display:none}
+  .legend-row{display:grid;grid-template-columns:16px 1fr auto;align-items:center;gap:12px;font-size:18px}
+  .legend-label{display:flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.05}
+  .legend-label::first-line{font-size:19px}
+  .dot{width:16px;height:16px;border-radius:50%}
+  .mood-table-wrap{margin-top:28px;overflow:hidden;border:1px solid var(--line);border-radius:16px}
+  .mood-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+  .mood-table th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .mood-table th:nth-child(2),.mood-table th:nth-child(3){text-align:center}
+  .mood-table td{padding:13px 16px;border-bottom:1px solid var(--line)}
+  .mood-table tr:last-child td{border-bottom:0}
+  .mood-table td:nth-child(2),.mood-table td:nth-child(3){text-align:center;font-weight:700}
+  .table-mood{display:flex;align-items:center;gap:9px}
+  .table-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:22px}
+  .day{border:1px solid var(--line);border-radius:13px;padding:12px 5px;text-align:center;background:#fafbfc}
+  .day small{display:block;color:var(--muted);font-size:10px}
+  .day b{display:block;font-size:22px;margin-top:6px}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  .stat{background:#f8fafc;border:1px solid var(--line);padding:15px;border-radius:14px}
+  .stat strong{font-size:23px;display:block}.stat span{font-size:11px;color:var(--muted)}
+  .history{margin-top:20px}
+  #history{
+    height:500px;
+    max-height:500px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    padding-right:8px;
+    scrollbar-width:auto;
+    box-sizing:border-box;
+}
+#history .history-item{min-height:50px;box-sizing:border-box;flex-shrink:0}
+  .history-item{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:13px 0;font-size:13px}
+
+  .pill{font-size:11px;padding:5px 9px;border-radius:99px;background:#f1f5f9;color:#475569}
+  .full{grid-column:1/-1}
+    .thoughtspace-link{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;margin-top:14px;padding:11px 14px;
+    border:1px solid #cfe8ff;border-radius:14px;
+    background:linear-gradient(135deg,#eaf6ff,#d8efff);
+    color:#1672b8;text-decoration:none;font-weight:800;font-size:13px;
+    box-shadow:0 4px 12px rgba(40,140,210,.12);
+    transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+    box-sizing:border-box;
+  }
+  .thoughtspace-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 7px 18px rgba(40,140,210,.18);
+    background:linear-gradient(135deg,#dff2ff,#cceaff);
+  }
+  .thoughtspace-link span{font-size:16px}
+  .thoughtspace-description{
+    margin:9px auto 0;
+    max-width:520px;
+    text-align:center;
+    color:#64748b;
+    font-size:11px;
+    line-height:1.5;
+  }
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{position:relative;height:auto;padding:15px;display:flex;align-items:center;justify-content:space-between}.brand{padding:0}nav{display:none}.side-note{display:none}main{padding:20px}.grid{grid-template-columns:1fr}}
+  @media(max-width:600px){.moods{grid-template-columns:repeat(3,1fr)}.chart-wrap{grid-template-columns:1fr}.pie{width:280px;height:280px;margin:auto}.pie:after{inset:70px}.week{gap:4px}.day{padding:9px 2px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div>
+    <div class="brand">mood<span>space</span></div>
+    <nav>
+    </nav>
+  </div>
+  <div class="side-note">A simple private space to notice how your week feels.</div>
+</aside>
+
+<main>
+  <header>
+    <div><h1 id="greeting">Good Morning 👋</h1><div class="subtitle">How are you feeling right now?</div></div>
+    <div class="date" id="today"></div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Today's check-in</h2>
+      <p>Choose the mood that best describes this moment.</p>
+      <div class="moods" id="moods"></div>
+      <textarea id="note" placeholder="Want to say a little more? (optional)"></textarea>
+      <button class="btn" id="saveBtn">Save check-in</button>
+      <div class="status" id="status"></div>
+      <div class="checkin-summary-wrap">
+        <table class="checkin-summary">
+          <tbody>
+            <tr>
+              <td><span class="summary-value" id="totalCheckins">0</span><span class="summary-label">Total Check-ins</span></td>
+              <td><span class="summary-value" id="overallMood">—</span><span class="summary-label">Overall Mood</span></td>
+              <td><span class="summary-value" id="leastMood">—</span><span class="summary-label">Least Mood</span></td>
+              <td><span class="summary-value" id="daysCheckedIn">0</span><span class="summary-label">Days Checked In</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="thoughtspace-link" href="https://tolgatnt.github.io/Thoughtspace/" target="_blank" rel="noopener noreferrer" aria-label="Open Thoughtspace">
+        <span>✦</span> Thoughtspace
+      </a>
+      <div class="thoughtspace-description">
+        Thoughtspace is a place to pause, reflect, and explore your thoughts through guided reflection and meaningful conversations.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>This week's mood</h2>
+      <p>Your check-ins summarized by percentage.</p>
+      <div class="chart-wrap">
+        <table class="chart-table">
+          <tbody>
+            <tr>
+              <td class="pie-cell"><div class="pie" id="pie"><div class="pie-labels" id="pieLabels"></div></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mood-table-wrap">
+        <table class="mood-table">
+          <thead>
+            <tr><th>Mood</th><th>Count</th><th>Percentage</th></tr>
+          </thead>
+          <tbody id="moodTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>Weekly snapshot</h2>
+      <p>One glance at how each day felt.</p>
+      <div class="week" id="week"></div>
+      <div class="stat-grid" id="stats"></div>
+    </section>
+
+    <section class="card full history">
+      <h2>Recent check-ins</h2>
+      <p>Your latest entries, stored locally in this prototype.</p>
+      <div id="history"></div>
+    </section>
+  </div>
+</main>
+</div>
+
+<script>
+const MOODS = [
+  {id:'happy', label:'Happy', emoji:'😊', color:'#635bff'},
+  {id:'sad', label:'Sad', emoji:'😔', color:'#ef6a8a'},
+  {id:'tired', label:'Tired', emoji:'😴', color:'#f3b94f'},
+  {id:'calm', label:'Calm', emoji:'😌', color:'#4db6ac'},
+  {id:'stressed', label:'Stressed', emoji:'😣', color:'#f07c55'},
+  {id:'angry', label:'Angry', emoji:'😡', color:'#e45757'},
+  {id:'anxious', label:'Anxious', emoji:'😨', color:'#8b6fc4'},
+  {id:'excited', label:'Excited', emoji:'🤩', color:'#f59e0b'},
+  {id:'neutral', label:'Neutral', emoji:'😐', color:'#94a3b8'},
+  {id:'loved', label:'Loved', emoji:'🥰', color:'#ec6fa8'}
+];
+
+let entries = [];
+let selected = null;
+
+const DB_NAME = 'MoodspaceDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'moodEntries';
+
+function openMoodspaceDB(){
+  return new Promise((resolve,reject)=>{
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
+      if(!db.objectStoreNames.contains(STORE_NAME)){
+        const store = db.createObjectStore(STORE_NAME, {keyPath:'id', autoIncrement:true});
+        store.createIndex('date','date',{unique:false});
+        store.createIndex('mood','mood',{unique:false});
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function loadEntries(){
+  const db = await openMoodspaceDB();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(STORE_NAME,'readonly');
+    const request = tx.objectStore(STORE_NAME).getAll();
+    request.onsuccess = () => {
+      entries = request.result.sort((a,b)=>new Date(a.date)-new Date(b.date));
+      resolve(entries);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveEntry(entry){
+  const db = await openMoodspaceDB();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(STORE_NAME,'readwrite');
+    const request = tx.objectStore(STORE_NAME).add(entry);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+const $ = id => document.getElementById(id);
+const nowForGreeting = new Date();
+const hour = nowForGreeting.getHours();
+const greeting = hour < 8 ? 'Good Morning' : hour < 16 ? 'Good Afternoon' : 'Good Evening';
+$('greeting').textContent = `${greeting} 👋`;
+$('today').textContent = nowForGreeting.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+
+function renderMoods(){
+  $('moods').innerHTML = MOODS.map(m => `
+    <button class="mood ${selected===m.id?'selected':''}" data-id="${m.id}">
+      <span class="emoji">${m.emoji}</span><strong>${m.label}</strong>
+    </button>`).join('');
+  document.querySelectorAll('.mood').forEach(btn => btn.onclick=()=>{selected=btn.dataset.id;renderMoods()});
+}
+
+function weekEntries(){
+  const now = new Date();
+  const start = new Date(now);
+  const day = start.getDay();
+  const daysFromMonday = (day + 6) % 7;
+  start.setDate(start.getDate() - daysFromMonday);
+  start.setHours(0,0,0,0);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+
+  return entries.filter(e => {
+    const entryDate = new Date(e.date);
+    return entryDate >= start && entryDate < end;
+  });
+}
+
+function calculate(){
+  const recent = weekEntries();
+  const counts = Object.fromEntries(MOODS.map(m=>[m.id,0]));
+  recent.forEach(e=>{if(counts[e.mood]!==undefined) counts[e.mood]++});
+  const total = recent.length || 1;
+  return {recent, counts, total};
+}
+
+function renderDashboard(){
+  const {recent,counts,total}=calculate();
+
+  const moodCounts = MOODS.map(m=>({m,count:counts[m.id]})).filter(x=>x.count>0);
+  const highest = moodCounts.length ? [...moodCounts].sort((a,b)=>b.count-a.count)[0] : null;
+  const lowest = moodCounts.length ? [...moodCounts].sort((a,b)=>a.count-b.count)[0] : null;
+  const uniqueDays = new Set(recent.map(e=>new Date(e.date).toDateString())).size;
+
+  $('totalCheckins').textContent = recent.length;
+  $('overallMood').textContent = highest ? `${highest.m.emoji} ${highest.m.label}` : '—';
+  $('leastMood').textContent = lowest ? `${lowest.m.emoji} ${lowest.m.label}` : '—';
+  $('daysCheckedIn').textContent = uniqueDays;
+  const active = MOODS.filter(m=>counts[m.id]>0);
+  let cumulative=0, stops=[];
+  active.forEach(m=>{const pct=counts[m.id]/recent.length*100;stops.push(`${m.color} ${cumulative}% ${cumulative+pct}%`);cumulative+=pct});
+  $('pie').style.background = active.length ? `conic-gradient(${stops.join(',')})` : '#e5e7eb';
+
+  const labelRadius = 115;
+  let labelCumulative = 0;
+  if($('pieLabels')) $('pieLabels').innerHTML = active.map(m=>{
+    const pct = counts[m.id]/recent.length*100;
+    const midpoint = labelCumulative + pct/2;
+    const angle = (midpoint/100)*360 - 90;
+    const radians = angle * Math.PI / 180;
+    const x = 50 + (labelRadius/330*100) * Math.cos(radians);
+    const y = 50 + (labelRadius/330*100) * Math.sin(radians);
+    labelCumulative += pct;
+    return `<span class="pie-label" style="left:${x}%;top:${y}%">${Math.round(pct)}%</span>`;
+  }).join('');
+
+  $('moodTableBody').innerHTML = recent.length ? MOODS.map(m=>{
+    const pct=Math.round(counts[m.id]/recent.length*100);
+    return `<tr><td><div class="table-mood"><span class="table-dot" style="background:${m.color}"></span>${m.emoji} ${m.label}</div></td><td>${counts[m.id]}</td><td>${pct}%</td></tr>`;
+  }).join('') : `<tr><td colspan="3" style="text-align:center;color:#64748b">No mood data this week.</td></tr>`;
+
+  const now=new Date(), days=[];
+  const monday=new Date(now);
+  const daysFromMonday=(monday.getDay()+6)%7;
+  monday.setDate(monday.getDate()-daysFromMonday);
+  monday.setHours(0,0,0,0);
+
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);
+    d.setDate(monday.getDate()+i);
+    const found=recent
+      .filter(e=>new Date(e.date).toDateString()===d.toDateString())
+      .sort((a,b)=>new Date(a.date)-new Date(b.date))
+      .slice(-1)[0];
+    const mood=found?MOODS.find(m=>m.id===found.mood):null;
+    days.push(`<div class="day"><small>${d.toLocaleDateString(undefined,{weekday:'short'})}</small><b>${mood?mood.emoji:'·'}</b></div>`);
+  }
+  $('week').innerHTML=days.join('');
+
+  const sorted=MOODS.filter(m=>counts[m.id]>0).sort((a,b)=>counts[b.id]-counts[a.id]);
+  $('stats').innerHTML = sorted.slice(0,3).map(m=>`<div class="stat"><strong>${Math.round(counts[m.id]/recent.length*100)}%</strong><span>${m.emoji} ${m.label}</span></div>`).join('') ||
+    '<div class="stat"><strong>0%</strong><span>No mood data</span></div>';
+
+  $('history').innerHTML = [...entries].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>{
+    const m=MOODS.find(x=>x.id===e.mood);
+    return `<div class="history-item"><span>${m?.emoji||''} <strong>${m?.label||e.mood}</strong>${e.note?` — ${escapeHtml(e.note)}`:''}</span><span class="pill">${new Date(e.date).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</span></div>`;
+  }).join('') || '<div style="padding:18px 0;color:#64748b;font-size:13px">No check-ins yet. Your first one will appear here.</div>';
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+
+$('saveBtn').onclick=async()=>{
+  if(!selected){$('status').textContent='Pick a mood first.';return}
+  const newEntry={mood:selected,note:$('note').value.trim(),date:new Date().toISOString()};
+  try{
+    await saveEntry(newEntry);
+    entries.push(newEntry);
+    $('note').value=''; selected=null; renderMoods();
+    $('status').textContent='Check-in saved ✓';
+    renderDashboard();
+  }catch(error){
+    console.error(error);
+    $('status').textContent='Could not save the check-in. Please try again.';
+  }
+};
+
+(async()=>{
+  try{ await loadEntries(); }catch(error){ console.error(error); }
+  renderMoods();
+  renderDashboard();
+})();
+</script>
+</body>
+</html>
